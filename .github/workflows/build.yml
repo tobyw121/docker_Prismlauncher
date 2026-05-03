@@ -1,42 +1,40 @@
 name: Build PrismaLauncher
 
+# Wann soll der Workflow starten?
 on:
   push:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: [ "main" ] # Startet automatisch bei Pushes in den 'main' Branch
+  workflow_dispatch:     # Erlaubt dir, den Workflow manuell über den Tab "Actions" zu starten
 
 jobs:
   build-deb:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Lädt dein Repository herunter (wo dein Dockerfile und Skript liegen)
-      - name: Checkout your repository
+      # 1. Lädt deine Dateien (Dockerfile & Skript) aus dem Repo herunter
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Lädt den Quellcode des PrismLaunchers herunter
-      - name: Checkout PrismLauncher source
-        uses: actions/checkout@v4
-        with:
-          repository: 'PrismLauncher/PrismLauncher'
-          path: 'src' # Speichert den Code im Ordner "src"
-          submodules: 'recursive'
-
-      # 3. Baut die "Fabrik" (das Docker Image)
+      # 2. Baut das Docker-Image genau wie auf deinem lokalen PC
       - name: Build Docker Image
-        run: docker build -t prismlauncher-builder -f Dockerfile .
+        run: docker build -t prismlauncher-builder .
 
-      # 4. Startet den Build-Prozess
-      # Wir reichen den "src" Ordner (Quellcode) und einen "out" Ordner (für das Ergebnis) in den Container
-      - name: Build the .deb package
+      # 3. Extrahiert die gebauten Pakete aus dem fertigen Image
+      - name: Extract .deb packages
         run: |
-          mkdir -p out
-          docker run --rm -v ${{ github.workspace }}/src:/src -v ${{ github.workspace }}/out:/out prismlauncher-builder
+          mkdir -p output
+          # Wir erstellen kurz einen Container aus dem Image, ohne ihn zu starten
+          docker create --name temp-container prismlauncher-builder
+          # Wir kopieren den Ordner mit den fertigen Dateien aus dem Container heraus
+          docker cp temp-container:/home/appuser/prismlauncher ./output/
+          # Den temporären Container wieder löschen
+          docker rm temp-container
 
-      # 5. Lädt das fertige Paket als Download hoch
+      # 4. Lädt die fertigen .deb Dateien als Artifact hoch, damit du sie herunterladen kannst
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: prismlauncher-debian-package
-          path: ./out/*.deb
+          # Wir suchen im kopierten Ordner gezielt nach .deb Dateien
+          path: ./output/prismlauncher/*.deb
           if-no-files-found: error
