@@ -44,10 +44,8 @@ OUT_DIR="$(readlink -f "$OUT_DIR")"
 [[ -d "$SRC_DIR" ]] || fail "Source directory not found: $SRC_DIR"
 [[ -x "$QT_ROOT/bin/qmake6" || -x "$QT_ROOT/bin/qt-cmake" ]] || fail "Qt not found under $QT_ROOT"
 
-# --- FIX FÜR DEN DOCKER GIT FEHLER ---
-# Git erlauben, in diesem Ordner zu arbeiten, egal wem er gehört
+# --- FIX 1: Git erlauben, in diesem Ordner zu arbeiten ---
 git config --global --add safe.directory "$SRC_DIR"
-# -------------------------------------
 
 if [[ -d "$SRC_DIR/.git" ]]; then
   log "Updating submodules"
@@ -191,6 +189,7 @@ dpkg-deb --root-owner-group --build "$PKG_ROOT" "$OUT_DIR/$DEB_FILE"
 
 log "Validating package"
 dpkg-deb --info "$OUT_DIR/$DEB_FILE"
-dpkg-deb --contents "$OUT_DIR/$DEB_FILE" | head -80
+# --- FIX 2: '|| true' angehängt, um Pipefail-Absturz durch 'head' zu verhindern ---
+dpkg-deb --contents "$OUT_DIR/$DEB_FILE" | head -80 || true
 
 printf '\nBuilt package: %s\n' "$OUT_DIR/$DEB_FILE"
