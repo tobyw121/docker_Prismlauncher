@@ -1,7 +1,5 @@
 # syntax=docker/dockerfile:1
 # Builder image for Prism Launcher Debian packages.
-# It builds Prism Launcher with the upstream Qt toolchain and produces a self-contained .deb
-# that bundles Qt under /usr/lib/prismlauncher while leaving common system libraries as Debian deps.
 
 FROM debian:bookworm
 
@@ -35,6 +33,7 @@ RUN apt-get update \
     libglib2.0-0 libgl1 libegl1 libopengl0 \
     libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
     libxcb-render-util0 libxcb-xinerama0 libxkbcommon0 \
+    zlib1g-dev \
  && echo 'C.UTF-8 UTF-8' > /etc/locale.gen \
  && locale-gen \
  && rm -rf /var/lib/apt/lists/*
@@ -53,7 +52,6 @@ RUN pip3 install --break-system-packages --no-cache-dir aqtinstall \
     "$QT_PLUGIN_PATH"/qmltooling \
     "$QT_PLUGIN_PATH"/sqldrivers
 
-# Kopiert das Skript direkt aus dem Hauptverzeichnis
 COPY build-deb.sh /usr/local/bin/build-deb
 RUN chmod +x /usr/local/bin/build-deb
 
