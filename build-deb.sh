@@ -44,6 +44,11 @@ OUT_DIR="$(readlink -f "$OUT_DIR")"
 [[ -d "$SRC_DIR" ]] || fail "Source directory not found: $SRC_DIR"
 [[ -x "$QT_ROOT/bin/qmake6" || -x "$QT_ROOT/bin/qt-cmake" ]] || fail "Qt not found under $QT_ROOT"
 
+# --- FIX FÜR DEN DOCKER GIT FEHLER ---
+# Git erlauben, in diesem Ordner zu arbeiten, egal wem er gehört
+git config --global --add safe.directory "$SRC_DIR"
+# -------------------------------------
+
 if [[ -d "$SRC_DIR/.git" ]]; then
   log "Updating submodules"
   git -C "$SRC_DIR" submodule update --init --recursive
