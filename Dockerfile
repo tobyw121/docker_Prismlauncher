@@ -3,8 +3,7 @@
 # It builds Prism Launcher with the upstream Qt toolchain and produces a self-contained .deb
 # that bundles Qt under /usr/lib/prismlauncher while leaving common system libraries as Debian deps.
 
-ARG UBUNTU_VERSION=24.04
-FROM ubuntu:${UBUNTU_VERSION}
+FROM debian:bookworm
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG QT_VERSION=6.10.2
@@ -33,7 +32,7 @@ RUN apt-get update \
     gamemode-dev libarchive-dev libcmark-dev libgamemode0 \
     libgl1-mesa-dev libqrencode-dev libtomlplusplus-dev libvulkan-dev \
     libxcb-cursor-dev libxkbcommon-dev libdbus-1-dev \
-    libglib2.0-0t64 libgl1 libegl1 libopengl0 \
+    libglib2.0-0 libgl1 libegl1 libopengl0 \
     libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
     libxcb-render-util0 libxcb-xinerama0 libxkbcommon0 \
  && echo 'C.UTF-8 UTF-8' > /etc/locale.gen \
@@ -54,6 +53,7 @@ RUN pip3 install --break-system-packages --no-cache-dir aqtinstall \
     "$QT_PLUGIN_PATH"/qmltooling \
     "$QT_PLUGIN_PATH"/sqldrivers
 
+# Kopiert das Skript direkt aus dem Hauptverzeichnis
 COPY build-deb.sh /usr/local/bin/build-deb
 RUN chmod +x /usr/local/bin/build-deb
 
