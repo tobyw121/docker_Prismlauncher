@@ -54,7 +54,7 @@ RUN pip3 install --break-system-packages --no-cache-dir aqtinstall \
     "$QT_PLUGIN_PATH"/qmltooling \
     "$QT_PLUGIN_PATH"/sqldrivers
 
-COPY packaging/deb/build-deb.sh /usr/local/bin/build-deb
+COPY build-deb.sh /usr/local/bin/build-deb
 RUN chmod +x /usr/local/bin/build-deb
 
 WORKDIR /src
