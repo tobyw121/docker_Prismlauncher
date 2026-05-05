@@ -1,40 +1,55 @@
-name: Build PrismaLauncher
+name: Build PrismLauncher DEB
 
-# Wann soll der Workflow starten?
 on:
   push:
-    branches: [ "main" ] # Startet automatisch bei Pushes in den 'main' Branch
-  workflow_dispatch:     # Erlaubt dir, den Workflow manuell über den Tab "Actions" zu starten
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  # Ermöglicht das manuelle Starten des Workflows über die GitHub-Oberfläche
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'PrismLauncher Branch to build'
+        required: false
+        default: 'release-11.x'
 
 jobs:
-  build-deb:
+  build:
+    name: Build Debian Package
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Lädt deine Dateien (Dockerfile & Skript) aus dem Repo herunter
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Baut das Docker-Image genau wie auf deinem lokalen PC
-      - name: Build Docker Image
-        run: docker build -t prismlauncher-builder .
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      # 3. Extrahiert die gebauten Pakete aus dem fertigen Image
-      - name: Extract .deb packages
+      - name: Create output directory
+        run: mkdir -p dist
+        
+      - name: Build PrismLauncher DEB via Docker
+        # Führt den Build-Prozess analog zu deinem bereitgestellten Bash-Skript aus.
+        # Exportiert das Ergebnis aus dem "scratch"-Image in den lokalen "dist"-Ordner.
         run: |
-          mkdir -p output
-          # Wir erstellen kurz einen Container aus dem Image, ohne ihn zu starten
-          docker create --name temp-container prismlauncher-builder
-          # Wir kopieren den Ordner mit den fertigen Dateien aus dem Container heraus
-          docker cp temp-container:/home/appuser/prismlauncher ./output/
-          # Den temporären Container wieder löschen
-          docker rm temp-container
+          docker buildx build \
+            -f Dockerfile \
+            --target artifact \
+            --output "type=local,dest=dist" \
+            --build-arg "REPO_URL=https://github.com/PrismLauncher/PrismLauncher.git" \
+            --build-arg "BRANCH=${{ github.event.inputs.branch || 'release-11.x' }}" \
+            --build-arg "PKG_NAME=prismlauncher" \
+            --build-arg "PKG_VERSION=auto" \
+            --build-arg "MAINTAINER=Local Build <root@localhost>" \
+            --build-arg "ENABLE_LTO=OFF" \
+            .
 
-      # 4. Lädt die fertigen .deb Dateien als Artifact hoch, damit du sie herunterladen kannst
-      - name: Upload Artifact
+      - name: Check generated output
+        run: ls -lh dist/*.deb
+
+      - name: Upload DEB Artifact
         uses: actions/upload-artifact@v4
         with:
           name: prismlauncher-debian-package
-          # Wir suchen im kopierten Ordner gezielt nach .deb Dateien
-          path: ./output/prismlauncher/*.deb
+          path: dist/*.deb
           if-no-files-found: error
