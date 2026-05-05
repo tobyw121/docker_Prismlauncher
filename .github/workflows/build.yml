@@ -11,7 +11,7 @@ on:
       branch:
         description: 'PrismLauncher Branch to build'
         required: false
-        default: 'release-11.x'
+        default: 'release-10.x'
 
 jobs:
   build:
@@ -37,7 +37,7 @@ jobs:
             --target artifact \
             --output "type=local,dest=dist" \
             --build-arg "REPO_URL=https://github.com/PrismLauncher/PrismLauncher.git" \
-            --build-arg "BRANCH=${{ github.event.inputs.branch || 'release-11.x' }}" \
+            --build-arg "BRANCH=${{ github.event.inputs.branch || 'release-10.x' }}" \
             --build-arg "PKG_NAME=prismlauncher" \
             --build-arg "PKG_VERSION=auto" \
             --build-arg "MAINTAINER=Local Build <root@localhost>" \
