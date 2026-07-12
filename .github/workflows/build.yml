@@ -11,7 +11,7 @@ on:
       branch:
         description: 'PrismLauncher Branch to build'
         required: false
-        default: 'release-11.x'
+        default: 'release-9.x'
 
 jobs:
   build:
