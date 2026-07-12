@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_URL="${REPO_URL:-https://github.com/PrismLauncher/PrismLauncher.git}"
-BRANCH="${BRANCH:-release-9.x}"
+BRANCH="${BRANCH:-release-10.x}"
 PKG_NAME="${PKG_NAME:-prismlauncher}"
 PKG_VERSION="${PKG_VERSION:-auto}"
 MAINTAINER="${MAINTAINER:-Local Build <root@localhost>}"
