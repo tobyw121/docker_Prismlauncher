@@ -5,7 +5,7 @@
 FROM debian:bookworm-slim AS builder
 
 ARG REPO_URL="https://github.com/PrismLauncher/PrismLauncher.git"
-ARG BRANCH="release-9.x"
+ARG BRANCH="release-10.x"
 ARG PKG_NAME="prismlauncher"
 ARG PKG_VERSION="auto"
 ARG MAINTAINER="Local Build <root@localhost>"
