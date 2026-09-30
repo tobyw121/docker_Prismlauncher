@@ -12,6 +12,7 @@ OUTPUT_DIR="${OUTPUT_DIR:-dist}"
 DOCKERFILE="${DOCKERFILE:-Dockerfile}"
 NO_CACHE="${NO_CACHE:-0}"
 
+
 mkdir -p "${OUTPUT_DIR}"
 
 build_args=(
